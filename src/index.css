@@ -1,0 +1,67 @@
+:root {
+  --text: #4b5563;
+  --text-h: #111827;
+  --text-muted: #9ca3af;
+  --bg-page: #f3f4f6;
+  --bg-surface: #ffffff;
+  --border: #e5e7eb;
+  --hover-bg: #f9fafb;
+  --accent: #6366f1;
+  --accent-bg: rgba(99, 102, 241, 0.1);
+  --accent-border: rgba(99, 102, 241, 0.4);
+
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --text: #9ca3af;
+    --text-h: #f9fafb;
+    --text-muted: #6b7280;
+    --bg-page: #0f1117;
+    --bg-surface: #1a1d27;
+    --border: #2d3040;
+    --hover-bg: #22263a;
+    --accent: #818cf8;
+    --accent-bg: rgba(129, 140, 248, 0.12);
+    --accent-border: rgba(129, 140, 248, 0.4);
+  }
+}
+
+[data-theme="dark"] {
+  --text: #9ca3af;
+  --text-h: #f9fafb;
+  --text-muted: #6b7280;
+  --bg-page: #0f1117;
+  --bg-surface: #1a1d27;
+  --border: #2d3040;
+  --hover-bg: #22263a;
+  --accent: #818cf8;
+  --accent-bg: rgba(129, 140, 248, 0.12);
+  --accent-border: rgba(129, 140, 248, 0.4);
+}
+
+[data-theme="dark"] .badge-status.completed { background: #14532d; color: #86efac; }
+[data-theme="dark"] .badge-status.pending   { background: #713f12; color: #fde68a; }
+[data-theme="dark"] .badge-status.processing{ background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .badge-status.cancelled { background: #7f1d1d; color: #fca5a5; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body { margin: 0; }
+
+h1, h2, h3 {
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+button { font-family: inherit; }
+
+a { color: inherit; }
+
+#root { min-height: 100vh; }
