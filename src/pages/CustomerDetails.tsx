@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import CustomerForm from '../components/CustomerForm'
 
 interface Customer {
-  id?: number
+  _id?: string
   name: string
   email: string
   phone: string
@@ -22,7 +22,7 @@ export default function CustomerDetails() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<{ open: boolean; data?: Customer }>({ open: false })
-  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
@@ -38,8 +38,8 @@ export default function CustomerDetails() {
   useEffect(() => { fetchCustomers() }, [])
 
   const handleSave = async (data: Customer) => {
-    const isEdit = !!data.id
-    const res = await fetch(isEdit ? `${API}/${data.id}` : API, {
+    const isEdit = !!data._id
+    const res = await fetch(isEdit ? `${API}/${data._id}` : API, {
       method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -54,6 +54,7 @@ export default function CustomerDetails() {
   const handleDelete = async () => {
     if (!deleteId) return
     const res = await fetch(`${API}/${deleteId}`, { method: 'DELETE' })
+
     if (res.ok) { fetchCustomers(); showToast('Customer deleted ✅') }
     setDeleteId(null)
   }
@@ -106,7 +107,7 @@ export default function CustomerDetails() {
               </thead>
               <tbody>
                 {filtered.map((c, i) => (
-                  <tr key={c.id} style={s.tr}>
+                  <tr key={c._id} style={s.tr}>
                     <td style={s.td}>{i + 1}</td>
                     <td style={{ ...s.td, fontWeight: 600, color: 'var(--text-h)' }}>{c.name}</td>
                     <td style={s.td}>{c.email || '—'}</td>
@@ -125,7 +126,7 @@ export default function CustomerDetails() {
                     <td style={s.td}>
                       <div style={s.actions}>
                         <button style={s.editBtn} onClick={() => setModal({ open: true, data: c })}>✏️ Edit</button>
-                        <button style={s.delBtn} onClick={() => setDeleteId(c.id!)}>🗑️ Delete</button>
+                        <button style={s.delBtn} onClick={() => setDeleteId(c._id!)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -136,7 +137,7 @@ export default function CustomerDetails() {
             {/* Mobile Cards */}
             <div className="customer-cards">
               {filtered.map((c, i) => (
-                <div key={c.id} style={s.card}>
+                <div key={c._id} style={s.card}>
                   <div style={s.cardHead}>
                     <div style={s.cardIndex}>{i + 1}</div>
                     <div style={{ flex: 1 }}>
@@ -173,7 +174,7 @@ export default function CustomerDetails() {
                   </div>
                   <div style={s.cardActions}>
                     <button style={s.editBtn} onClick={() => setModal({ open: true, data: c })}>✏️ Edit</button>
-                    <button style={s.delBtn} onClick={() => setDeleteId(c.id!)}>🗑️ Delete</button>
+                    <button style={s.delBtn} onClick={() => setDeleteId(c._id!)}>🗑️ Delete</button>
                   </div>
                 </div>
               ))}
@@ -202,7 +203,7 @@ export default function CustomerDetails() {
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button style={s.cancelBtn} onClick={() => setDeleteId(null)}>Cancel</button>
-              <button style={s.confirmDelBtn} onClick={handleDelete}>Delete</button>
+              <button style={s.confirmDelBtn} onClick={handleDelete}>Yes, Delete</button>
             </div>
           </div>
         </div>

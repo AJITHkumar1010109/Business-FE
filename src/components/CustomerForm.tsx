@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 interface Customer {
-  id?: number
+  _id?: string
   name: string
   email: string
   phone: string
@@ -24,7 +24,7 @@ type FieldError = Partial<Record<keyof Customer, string>>
 
 export default function CustomerForm({ initial, onSave, onClose }: Props) {
   const [form, setForm] = useState<Customer>(
-    initial ?? {
+    initial ? { ...initial } : {
       name: '', email: '', phone: '', native: '', district: '',
       address: '', amount_received: '', amount_balance: '', total_amount: '', status: 'Pending'
     }
@@ -82,7 +82,7 @@ export default function CustomerForm({ initial, onSave, onClose }: Props) {
     <div style={s.overlay}>
       <div style={s.modal}>
         <div style={s.header}>
-          <h3 style={s.title}>{initial?.id ? '✏️ Edit Customer' : '➕ Add Customer'}</h3>
+          <h3 style={s.title}>{initial?._id ? '✏️ Edit Customer' : '➕ Add Customer'}</h3>
           <button style={s.closeBtn} onClick={onClose}>✕</button>
         </div>
 
@@ -139,7 +139,7 @@ export default function CustomerForm({ initial, onSave, onClose }: Props) {
         <div style={s.footer}>
           <button style={s.cancelBtn} onClick={onClose}>Cancel</button>
           <button style={s.saveBtn} onClick={handleSave}>
-            {initial?.id ? 'Update' : 'Add Customer'}
+            {initial?._id ? 'Update Customer' : 'Add Customer'}
           </button>
         </div>
       </div>
