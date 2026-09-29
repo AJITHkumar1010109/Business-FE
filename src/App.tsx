@@ -92,7 +92,7 @@ function AppShell({ username, userPhone, userId, theme, toggleTheme, sidebarOpen
   const handleSelfDetailsClick = async () => {
     if (selfUnlocked) { navigate('/self-details'); return }
     // Check if PIN is set
-    const res = await fetch(`http://localhost:4000/api/user/${userId}`)
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/${userId}`)
     const data = await res.json()
     setPinModal(data.has_menu_pin ? 'verify' : 'set')
     setPin(''); setNewPin(''); setPinError('')
@@ -100,7 +100,7 @@ function AppShell({ username, userPhone, userId, theme, toggleTheme, sidebarOpen
 
   const handleVerifyPin = async () => {
     if (pin.length !== 6) { setPinError('Enter a 6-digit PIN'); return }
-    const res = await fetch('http://localhost:4000/api/verify-menu-pin', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-menu-pin`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, pin }),
     })
@@ -113,7 +113,7 @@ function AppShell({ username, userPhone, userId, theme, toggleTheme, sidebarOpen
 
   const handleSetPin = async () => {
     if (newPin.length !== 6) { setPinError('PIN must be exactly 6 digits'); return }
-    const res = await fetch('http://localhost:4000/api/set-menu-pin', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/set-menu-pin`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, pin: newPin }),
     })

@@ -15,7 +15,7 @@ interface Customer {
   status: 'Completed' | 'Pending'
 }
 
-const API = 'http://localhost:4000/api/customers'
+const API = `${import.meta.env.VITE_API_URL}/api/customers`
 
 export default function CustomerDetails() {
   const [customers, setCustomers] = useState<Customer[]>([])

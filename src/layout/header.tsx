@@ -16,7 +16,6 @@ export default function Header({ onMenuToggle, sidebarOpen, onLogout, userPhone:
   const [searchValue, setSearchValue] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [modal, setModal] = useState<'username' | 'password' | 'logout' | 'pin' | null>(null)
-  const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [pinError, setPinError] = useState('')
   const [newUsername, setNewUsername] = useState('')
@@ -47,7 +46,7 @@ export default function Header({ onMenuToggle, sidebarOpen, onLogout, userPhone:
   const handleUsernameChange = async () => {
     if (!newUsername.trim()) return
     try {
-      const res = await fetch('http://localhost:4000/api/change-username', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/change-username`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, username: newUsername.trim() }),
@@ -75,7 +74,7 @@ export default function Header({ onMenuToggle, sidebarOpen, onLogout, userPhone:
     if (!isStrongPassword(newPassword)) { showToast('Password must be 8+ chars with uppercase, lowercase, number & symbol ❌'); return }
     if (newPassword !== confirmPassword) { showToast('Passwords do not match ❌'); return }
     try {
-      const res = await fetch('http://localhost:4000/api/change-password', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: userPhone, newPassword }),
@@ -166,7 +165,7 @@ export default function Header({ onMenuToggle, sidebarOpen, onLogout, userPhone:
                 <button style={menuItemStyle} onClick={() => { setDropdownOpen(false); setNewPassword(''); setConfirmPassword(''); setShowNew(false); setShowConfirm(false); setModal('password') }}>
                   🔑 &nbsp; Change Password
                 </button>
-                <button style={menuItemStyle} onClick={() => { setDropdownOpen(false); setCurrentPin(''); setNewPin(''); setPinError(''); setModal('pin') }}>
+                <button style={menuItemStyle} onClick={() => { setDropdownOpen(false); setNewPin(''); setPinError(''); setModal('pin') }}>
                   🔢 &nbsp; Change PIN
                 </button>
 
@@ -238,7 +237,7 @@ export default function Header({ onMenuToggle, sidebarOpen, onLogout, userPhone:
               <button style={cancelBtn} onClick={() => setModal(null)}>Cancel</button>
               <button style={confirmBtn} onClick={async () => {
                 if (newPin.length !== 6) { setPinError('PIN must be 6 digits'); return }
-                const sRes = await fetch('http://localhost:4000/api/set-menu-pin', {
+                const sRes = await fetch(`${import.meta.env.VITE_API_URL}/api/set-menu-pin`, {
                   method: 'POST', headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ userId, pin: newPin }),
                 })
