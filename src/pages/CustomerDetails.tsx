@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import CustomerForm from '../components/CustomerForm'
 
+interface PaymentEntry {
+  _id?: string
+  amount: number
+  received_at: string
+  note?: string
+}
+
 interface Customer {
   _id?: string
   name: string
@@ -13,6 +20,7 @@ interface Customer {
   amount_balance: string
   total_amount: string
   status: 'Completed' | 'Pending'
+  payment_history?: PaymentEntry[]
 }
 
 const API = `${import.meta.env.VITE_API_URL}/api/customers`
@@ -24,6 +32,10 @@ export default function CustomerDetails() {
   const [modal, setModal] = useState<{ open: boolean; data?: Customer }>({ open: false })
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
+  const [payModal, setPayModal] = useState<{ open: boolean; customer?: Customer }>({ open: false })
+  const [payAmount, setPayAmount] = useState('')
+  const [payNote, setPayNote] = useState('')
+  const [histModal, setHistModal] = useState<{ open: boolean; customer?: Customer }>({ open: false })
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
@@ -48,6 +60,22 @@ export default function CustomerDetails() {
       fetchCustomers()
       setModal({ open: false })
       showToast(isEdit ? 'Customer updated ✅' : 'Customer added ✅')
+    }
+  }
+
+  const handleAddPayment = async () => {
+    if (!payModal.customer?._id || !payAmount) return
+    const res = await fetch(`${API}/${payModal.customer._id}/payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: Number(payAmount), note: payNote }),
+    })
+    if (res.ok) {
+      fetchCustomers()
+      setPayModal({ open: false })
+      setPayAmount('')
+      setPayNote('')
+      showToast('Payment recorded ✅')
     }
   }
 
@@ -125,6 +153,8 @@ export default function CustomerDetails() {
                     </td>
                     <td style={s.td}>
                       <div style={s.actions}>
+                        <button style={s.payBtn} onClick={() => { setPayModal({ open: true, customer: c }); setPayAmount(''); setPayNote('') }}>💰 Pay</button>
+                        <button style={s.histBtn} onClick={() => setHistModal({ open: true, customer: c })}>📋 History</button>
                         <button style={s.editBtn} onClick={() => setModal({ open: true, data: c })}>✏️ Edit</button>
                         <button style={s.delBtn} onClick={() => setDeleteId(c._id!)}>🗑️ Delete</button>
                       </div>
@@ -173,6 +203,8 @@ export default function CustomerDetails() {
                     </div>
                   </div>
                   <div style={s.cardActions}>
+                    <button style={s.payBtn} onClick={() => { setPayModal({ open: true, customer: c }); setPayAmount(''); setPayNote('') }}>💰 Pay</button>
+                    <button style={s.histBtn} onClick={() => setHistModal({ open: true, customer: c })}>📋 History</button>
                     <button style={s.editBtn} onClick={() => setModal({ open: true, data: c })}>✏️ Edit</button>
                     <button style={s.delBtn} onClick={() => setDeleteId(c._id!)}>🗑️ Delete</button>
                   </div>
@@ -190,6 +222,61 @@ export default function CustomerDetails() {
           onSave={handleSave}
           onClose={() => setModal({ open: false })}
         />
+      )}
+
+      {/* Add Payment Modal */}
+      {payModal.open && (
+        <div style={s.overlay}>
+          <div style={s.confirmBox}>
+            <h3 style={{ margin: '0 0 4px', color: 'var(--text-h)', fontSize: '15px' }}>💰 Add Payment</h3>
+            <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>{payModal.customer?.name}</p>
+            <input
+              style={{ ...s.searchInput, marginBottom: '10px', paddingLeft: '12px' }}
+              type="number"
+              placeholder="Amount (₹)"
+              value={payAmount}
+              onChange={e => setPayAmount(e.target.value)}
+            />
+            <input
+              style={{ ...s.searchInput, marginBottom: '16px', paddingLeft: '12px' }}
+              placeholder="Note (optional)"
+              value={payNote}
+              onChange={e => setPayNote(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button style={s.cancelBtn} onClick={() => setPayModal({ open: false })}>Cancel</button>
+              <button style={{ ...s.confirmDelBtn, background: 'linear-gradient(135deg,#667eea,#764ba2)' }} onClick={handleAddPayment}>Record Payment</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment History Modal */}
+      {histModal.open && (
+        <div style={s.overlay} onClick={() => setHistModal({ open: false })}>
+          <div style={{ ...s.confirmBox, maxWidth: '420px', textAlign: 'left', maxHeight: '80vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 4px', color: 'var(--text-h)', fontSize: '15px' }}>📋 Payment History</h3>
+            <p style={{ margin: '0 0 14px', fontSize: '12px', color: 'var(--text-muted)' }}>{histModal.customer?.name}</p>
+            {!histModal.customer?.payment_history?.length ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>No payments recorded yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[...(histModal.customer.payment_history || [])].reverse().map((p, i) => (
+                  <div key={p._id || i} style={{ background: 'var(--hover-bg)', borderRadius: '8px', padding: '10px 12px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, color: '#16a34a', fontSize: '15px' }}>₹{Number(p.amount).toLocaleString()}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        {new Date(p.received_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      </span>
+                    </div>
+                    {p.note && <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>{p.note}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+            <button style={{ ...s.cancelBtn, marginTop: '16px', width: '100%' }} onClick={() => setHistModal({ open: false })}>Close</button>
+          </div>
+        </div>
       )}
 
       {/* Delete Confirm Modal */}
@@ -258,6 +345,14 @@ const s: Record<string, React.CSSProperties> = {
   badgeActive: { background: '#dcfce7', color: '#16a34a' },
   badgeInactive: { background: '#fee2e2', color: '#dc2626' },
   actions: { display: 'flex', gap: '8px' },
+  payBtn: {
+    padding: '5px 12px', borderRadius: '7px', border: '1.5px solid #bbf7d0',
+    background: '#f0fdf4', color: '#16a34a', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
+  },
+  histBtn: {
+    padding: '5px 12px', borderRadius: '7px', border: '1.5px solid #bfdbfe',
+    background: '#eff6ff', color: '#2563eb', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
+  },
   editBtn: {
     padding: '5px 12px', borderRadius: '7px', border: '1.5px solid var(--border)',
     background: 'var(--bg-page)', color: 'var(--text)', cursor: 'pointer', fontSize: '12px', fontWeight: 600,

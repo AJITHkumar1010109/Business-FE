@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     host: '0.0.0.0',
-    port: Number(process.env.PORT) || 5175,
+    port: Number(process.env.PORT) || 5174,
     allowedHosts: ['business-fe-6dzo.onrender.com'],
   },
 })
