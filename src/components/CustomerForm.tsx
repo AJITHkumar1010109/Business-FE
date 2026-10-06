@@ -16,13 +16,14 @@ interface Customer {
 
 interface Props {
   initial?: Customer
+  paymentCount?: number
   onSave: (data: Customer) => void
   onClose: () => void
 }
 
 type FieldError = Partial<Record<keyof Customer, string>>
 
-export default function CustomerForm({ initial, onSave, onClose }: Props) {
+export default function CustomerForm({ initial, paymentCount = 0, onSave, onClose }: Props) {
   const [form, setForm] = useState<Customer>(
     initial ? { ...initial } : {
       name: '', email: '', phone: '', native: '', district: '',
@@ -96,8 +97,8 @@ export default function CustomerForm({ initial, onSave, onClose }: Props) {
                   value={form[key] as string}
                   onChange={e => set(key, e.target.value)}
                   onWheel={type === 'number' ? e => e.currentTarget.blur() : undefined}
-                  disabled={key === 'amount_balance'}
-                  style={{ ...s.input, borderColor: errors[key] ? '#e53e3e' : undefined, ...(key === 'amount_balance' ? s.disabled : {}) }}
+                  disabled={key === 'amount_balance' || (key === 'amount_received' && paymentCount > 0)}
+                  style={{ ...s.input, borderColor: errors[key] ? '#e53e3e' : undefined, ...((key === 'amount_balance' || (key === 'amount_received' && paymentCount > 0)) ? s.disabled : {}) }}
                   placeholder={key === 'amount_balance' ? 'Auto calculated' : `Enter ${label.toLowerCase()}`}
                   min={type === 'number' ? '0' : undefined}
                 />

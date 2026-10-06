@@ -219,6 +219,7 @@ export default function CustomerDetails() {
       {modal.open && (
         <CustomerForm
           initial={modal.data}
+          paymentCount={modal.data?.payment_history?.filter(p => p.note !== 'Initial payment').length ?? 0}
           onSave={handleSave}
           onClose={() => setModal({ open: false })}
         />
